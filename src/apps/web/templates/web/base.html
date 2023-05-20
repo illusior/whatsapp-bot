@@ -1,0 +1,63 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <title>Ufanet whatsapp bot</title>
+
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <link href="{% static 'web/css/styles.css' %}" type="text/css" rel="stylesheet" />
+    <link href="{% static 'web/assets/favicon.ico' %}" type="image/x-icon" rel="icon" />
+    <link href="{% static 'web/css/styles.css' %}" type="text/css" rel="stylesheet" />
+
+    <script src="{% static 'web/js/script.js' %}" type="text/javascript"></script>
+</head>
+
+<body>
+    <div class="body-content">
+        <div class="logo-container">
+            <a href="https://www.ufanet.ru/">
+                <img class="logo-ufanet" src="{% static 'web/assets/svg/logo-ufanet.svg' %}" />
+            </a>
+            <a href="/">
+                <img class="logo-whatsapp" src="{% static 'web/assets/svg/logo-whatsapp.svg' %}" />
+            </a>
+        </div>
+        <div class="forms-container">
+            <div class="forms-container__title">Настройки бота</div>
+            <div class="forms-container__form">
+                
+                <div class="tabs">
+                    <div class="tabs__tab tabs__tab--active">Сообщение</div>
+                    <div class="tabs__tab">Google таблица номеров</div>
+                    <div class="tabs__tab">Log бота</div>
+                </div>
+
+                <form href="{% url "home" %}" action="{% url "home" %}" class="forms-container__wrapper-content" method="post">
+                    {% csrf_token %}
+
+                    {% block form_content_botsetting %}
+                    {% endblock form_content_botsetting %}
+
+                    {% block form_content_log %}
+                    {% endblock form_content_log %}
+
+                    <button class="button button--stretch button--primary button--xl button--disabled" disabled type="submit" id="submit-btn">
+                        <div class="button-title" style="opacity: 1;">Сохранить и отправить сообщение</div>
+                        <div class="button-spinner"></div>
+                    </button>
+            </form>
+
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer__text">2023 SBH Team</div>
+        </div>
+    </div>
+</body>
+
+</html>
