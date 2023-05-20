@@ -158,3 +158,6 @@ cython_debug/
 
 # User data
 user_data/
+
+# Django Static Files
+src/static/*
