@@ -1,15 +1,12 @@
 import os
-import inspect
-import logging
 
 from ..forms import BotSettingsForm
-from .common.google.api import GoogleSheetsAuthData
 from .common.green_api import *
 from .common.logging.logger import *
 from .common.messages import *
 from .common.validators.PhoneValidator import *
 from .google.GoogleSheetSource import GoogleSheetSource
-from logger.server_logger import ROOT_LOGGER
+from logger.server_logger import SERVER_LOGGER
 
 from .AbstractSource import (
     UniqueSourceDecorator,
@@ -41,33 +38,36 @@ def generalMailing(post_data) -> None:
     google = UniqueSourceDecorator(
         NotEmptySourceDecorator(
             GoogleSheetSource(
-                GoogleSheetsAuthData(),
                 id_google_sheet,
-                f"{id_data_column_google_sheet}:{id_data_column_google_sheet}",
+                range=f"{id_data_column_google_sheet}:{id_data_column_google_sheet}",
+                api_version="v4",
             )
         )
     )
 
-    was_error = False
     for phone_number in google:
         was_error = False
+        err = None
         try:
             phone_number = validate_phone(phone_number)
             chatId = f"{phone_number}{CHAT_ID_MOBILE_DOMAIN}"
             wa.sending.sendMessage(chatId=chatId, message=to_send_message)
-        except Exception as err:
+        except Exception as err_excpt:
             was_error = True
-            ROOT_LOGGER.error(err)
+            SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err_excpt)
+            err = err_excpt
 
         log_number = f"{phone_number[:3]}{''.join(['x' for i in range(len(phone_number) - 5)])}{phone_number[-2:]}"
         BOT_LOGGER.log(
-            level=logging.INFO,
-            msg=f"Sent message to number {log_number}. {'Failed' if was_error else 'Success'}",
+            level=BOT_LOGGER.INFO,
+            msg=f"Sent message to number {log_number}. {f'Failed. Reason: {err}' if was_error else 'Success'}",
             extra={
-                BotLogModel.K_INITIATOR: inspect.stack()[0][3],
+                BotLogModel.K_INITIATOR: "Bot",
                 BotLogModel.K_ACTION_TYPE: "Send message",
             },
         )
 
         if not was_error:
-            ROOT_LOGGER.info("Send message")
+            SERVER_LOGGER.log(
+                SERVER_LOGGER.INFO, f"Send message to {log_number}"
+            )

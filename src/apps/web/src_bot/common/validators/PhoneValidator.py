@@ -3,4 +3,7 @@ def validate_phone(phone: str) -> str:
         "-", ""
     ).replace("(", "").replace(")", "")
 
+    if not phone.isdigit():
+        raise ValueError("Wrong phone format")
+
     return phone

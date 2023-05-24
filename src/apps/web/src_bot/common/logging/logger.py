@@ -1,4 +1,5 @@
 from apps.web.models import *
+from logger.server_logger import BaseLogger
 
 import datetime
 import logging
@@ -19,9 +20,12 @@ class DatabaseHandler(logging.Handler):
         log.save()
 
 
+class BotLogger(BaseLogger):
+    pass
+
+
 BOT_LOGGER_NAME = "BotLogger"
-BOT_LOGGER = logging.getLogger(BOT_LOGGER_NAME)
-BOT_LOGGER.setLevel(logging.INFO)
+BOT_LOGGER = BotLogger(BOT_LOGGER_NAME)
 BOT_LOGGER.addHandler(DatabaseHandler())
 
-__all__ = ["BOT_LOGGER"]
+__all__ = ["BOT_LOGGER", "BotLogModel"]

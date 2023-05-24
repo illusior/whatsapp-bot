@@ -20,6 +20,8 @@ from .validators.bot_settings import (
 
 from .src_bot.mailing import *
 
+import logging
+
 
 def _make_bot_settings_widgets(values_in_placeholders_map=None):
     K_TO_SEND_MESSAGE = BotSettingsForm.Meta.K_TO_SEND_MESSAGE
@@ -77,8 +79,24 @@ CK_BOT_SETTINGS_FORM = "settings_form"
 CK_LOG_BOT_LIST = "log_list"
 CK_WAS_ERROR = "was_error"
 CK_ON_FORM_POST_POPUP_TYPE = "popup_type"  # FormStatus as str
+CK_ERRORS = "errors"
 
 # Context Keys
+
+
+def _update_context_err(context, msg, code):
+    context.update(
+        {
+            CK_ERRORS: {
+                "msg": [
+                    ValidationError(
+                        gettext_lazy(msg),
+                        code=code,
+                    )
+                ]
+            }
+        }
+    )
 
 
 class WebMainView(generic.CreateView):
@@ -98,7 +116,7 @@ class WebMainView(generic.CreateView):
 
     def get(self, request, *_, **kwargs):
         context = self.get_context_data(**kwargs)
-        # self._get_all_bot_settings_records().delete()
+        self._get_all_bot_settings_records().delete()
 
         context = {
             CK_BOT_SETTINGS_FORM: self._create_bot_settings_form_factory(
@@ -121,6 +139,10 @@ class WebMainView(generic.CreateView):
             CK_LOG_BOT_LIST: BotLogModel.objects.all(),
         }
 
+        context.update(
+            {CK_ON_FORM_POST_POPUP_TYPE: get_form_status_str(FormStatus.OK)}
+        )
+
         if request.POST.get("action") == "send":
             context.update(
                 {
@@ -130,36 +152,35 @@ class WebMainView(generic.CreateView):
                 }
             )
             bot_complete_settings = self._complete_bot_settings(request)
-            generalMailing(bot_complete_settings)
+            try:
+                generalMailing(bot_complete_settings)
+                _update_context_err(
+                    context, "Сообщения отправляются", code="OK"
+                )
+            except Exception:
+                _update_context_err(
+                    context,
+                    "Не удалось получить данные из Google-таблицы",
+                    code="err_empty_settings_on_first_set",
+                )
             return render(request, self.template_name, context)
 
         bot_settings_form: BotSettingsForm = self.form_class(request.POST)
 
         if not settings_empty_on_first_set:
-            context.update(
-                {CK_ON_FORM_POST_POPUP_TYPE: get_form_status_str(FormStatus.OK)}
-            )
             bot_settings_form.save()
 
         form_is_valid = bot_settings_form.is_valid()
         if not form_is_valid or settings_empty_on_first_set:
             errors_data = bot_settings_form.errors.as_data()
-            context.update(
-                {
-                    "errors": errors_data
-                    if not settings_empty_on_first_set
-                    else {
-                        "msg": [
-                            ValidationError(
-                                gettext_lazy(
-                                    "Необходимо ввести все данные при первой настройке"
-                                ),
-                                code="err_empty_settings_on_first_set",
-                            )
-                        ]
-                    }
-                }
-            )
+            if not settings_empty_on_first_set:
+                context.update({CK_ERRORS: errors_data})
+            else:
+                _update_context_err(
+                    context,
+                    "Необходимо ввести все данные при первой настройке",
+                    code="err_empty_settings_on_first_set",
+                )
 
             context.update(
                 {
@@ -231,9 +252,6 @@ class WebMainView(generic.CreateView):
         if not no_settings_in_bd:
             return False
 
-        post_data = {
-            key: post_query[key] for key in self.form_class.Meta.fields
-        }
         any_setting_is_empty_from_post = any(
             len(value) == 0 for value in post_query.values()
         )

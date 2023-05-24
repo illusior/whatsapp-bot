@@ -1,31 +1,35 @@
-from ..common.google.api import GoogleSheetsAuthData, make_credentials
 from ..AbstractSource import AbstractSource
+from ..common.google.api import GoogleApiServiceBuilder
+from ..common.logging.logger import BOT_LOGGER, BotLogModel
+from logger.server_logger import SERVER_LOGGER
 
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-
-from ..common.logging.logger import BOT_LOGGER
-from logger.server_logger import ROOT_LOGGER
 
 class GoogleSheetSource(AbstractSource[str]):
     __slots__ = ["__ss_service", "__spreadsheet_id", "__values", "__iter"]
 
     def __init__(
-        self, auth_data: GoogleSheetsAuthData, spreadsheet_id: str, range: str
+        self, spreadsheet_id: str, range: str, api_version
     ) -> None:
         super(GoogleSheetSource, self).__init__()
         try:
-            service = build(
-                "sheets", "v4", credentials=make_credentials(auth_data)
+            service = GoogleApiServiceBuilder.from_oauth_2(
+                service_name="sheets", api_version=api_version
             )
             self.__spreadsheet_id = spreadsheet_id
             self.__ss_service = service.spreadsheets()
             self.__iter = None
             self.set_range(range)
 
-        except HttpError as err:
-            ROOT_LOGGER.error(err)
-            # BOT_LOGGER.write_log()
+        except Exception as err:
+            BOT_LOGGER.log(
+                BOT_LOGGER.ERROR,
+                "Failed to retrieve data from Google's Spreadsheets",
+                extra={
+                    BotLogModel.K_INITIATOR: "Bot",
+                    BotLogModel.K_ACTION_TYPE: "Send message",
+                },
+            )
+            SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err)
 
     def set_range(self, range: str) -> None:
         result = (

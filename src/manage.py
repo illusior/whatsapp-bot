@@ -3,7 +3,7 @@
 import os
 import sys
 
-from logger.server_logger import ROOT_LOGGER
+from logger.server_logger import SERVER_LOGGER
 
 
 def main():
@@ -17,6 +17,9 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    SERVER_LOGGER.log(
+        SERVER_LOGGER.INFO, f"Start manage.py with argv: {sys.argv}"
+    )
     execute_from_command_line(sys.argv)
 
 
@@ -24,4 +27,4 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as err:
-        ROOT_LOGGER.error(err)
+        SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err)
