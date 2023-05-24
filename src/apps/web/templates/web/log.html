@@ -1,0 +1,10 @@
+<div class="log">
+    <p>
+        {% for log in log_list  %}
+            <p>
+                [{{ log.datetime_record|date:"Y-m-d|H:i:s|eO" }}] &lt;{{ log.initiator }}&gt; {{ '{' }}{{ log.action_type }}{{ '}' }} {{ log.message }}
+            </p>
+        {% endfor %}
+    </p>
+</div>                
+

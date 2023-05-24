@@ -1,0 +1,37 @@
+{% if was_error or popup_type == 'ok' %}
+    <div class="modal">
+        <div class="modal__container">
+            <div class="modal__body{% if popup_type == 'warn' %} warning{% endif %}{% if popup_type == 'err' %} danger{% endif %}">
+                <div class="modal__header" style="{% if popup_type == 'ok' %}align-self: center; padding-bottom: inherit;{% endif %}">
+                    {% if popup_type == 'ok' %}
+                        Настройки успешно сохранены
+                    {% endif %}
+                    {% if popup_type == 'warn' %}
+                        Часть настроек не была изменена
+                    {% endif %}
+                    {% if popup_type == 'err' %}
+                        Ошибка. Настройки не сохранены
+                    {% endif %}
+                </div>
+            
+                <div class="modal__close" style="{% if popup_type == 'ok' %}align-self: center;{% endif %}">
+                    <a href="">&times;</a>
+                </div>
+            
+                <div class="modal__content">
+                    {% if errors %}
+                        {% for err in errors.values %}
+                            {% for except in err %}
+                                {% for msg in except %}
+                                    <div class="modal__item">
+                                        {{ msg }}
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
