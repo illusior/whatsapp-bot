@@ -3,6 +3,8 @@
 import os
 import sys
 
+from logger.server_logger import ROOT_LOGGER
+
 
 def main():
     """Run administrative tasks."""
@@ -19,4 +21,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as err:
+        ROOT_LOGGER.error(err)

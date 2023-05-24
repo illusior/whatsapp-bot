@@ -1,12 +1,13 @@
-from source.AbstractSource import AbstractUniqueSource
+from ..common.google.api import GoogleSheetsAuthData, make_credentials
+from ..AbstractSource import AbstractSource
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from common.google.api import GoogleSheetsAuthData, make_credentials
+from ..common.logging.logger import BOT_LOGGER
+from logger.server_logger import ROOT_LOGGER
 
-
-class GoogleSheetSource(AbstractUniqueSource[str]):
+class GoogleSheetSource(AbstractSource[str]):
     __slots__ = ["__ss_service", "__spreadsheet_id", "__values", "__iter"]
 
     def __init__(
@@ -23,7 +24,8 @@ class GoogleSheetSource(AbstractUniqueSource[str]):
             self.set_range(range)
 
         except HttpError as err:
-            print(err)
+            ROOT_LOGGER.error(err)
+            # BOT_LOGGER.write_log()
 
     def set_range(self, range: str) -> None:
         result = (
@@ -33,16 +35,13 @@ class GoogleSheetSource(AbstractUniqueSource[str]):
         )
         self.__values = result.get("values", [])
         self.__iter = iter(self.__values)
-        self._reset()
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        result = next(self.__iter)[0]
-        while self._has_value(result):
-            result = next(self.__iter)[0]
-        self._hold(result)
+        result = next(self.__iter)
+        result = result[0] if len(result) > 0 else ""
 
         return result
 

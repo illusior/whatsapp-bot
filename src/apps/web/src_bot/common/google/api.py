@@ -6,18 +6,21 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-# GOOGLE SHEETS #
+from config.settings import BASE_DIR
 
+# GOOGLE SHEETS #
 
 @dataclass
 class GoogleSheetsAuthData:
-    CREDENTIALS_PATH: str = "../user_data/google/credentials_google_sheet.json"
+    CREDENTIALS_PATH: str = (
+        BASE_DIR / "user_data/google/credentials_google_sheet.json"
+    )
 
     SCOPES = [
         "https://www.googleapis.com/auth/spreadsheets.readonly",
     ]
 
-    TOKEN_PATH: str = "../user_data/google/gs_token.json"
+    TOKEN_PATH: str = BASE_DIR / "user_data/google/gs_token.json"
 
 
 # GOOGLE SHEETS #

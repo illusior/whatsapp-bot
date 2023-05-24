@@ -33,27 +33,24 @@ a {
     display: flex;
     gap: 5%;
     justify-content: center;
-    margin-top: 40px;
-    margin-bottom: 40px;
-}
-
-.menu {
-    margin-bottom: 5%;
+    margin-top: 25px;
+    margin-bottom: 30px;
 }
 
 .logo-whatsapp {
     width: 56px;
 }
 
-.forms-container, .toggle-forms-container {
+.forms-container {
     background-color: #fff;
     border-radius: 16px;
     box-shadow: 0 8px 32px rgb(0 0 0 / 10%);
     display: flex;
     flex-flow: column;
     margin: 0 auto;
-    margin-bottom: 5%;
-    max-width: 100%;
+    margin-bottom: 40px;
+    min-width: 500px;
+    max-width: 550px;
     padding: 32px;
 }
 
@@ -69,10 +66,12 @@ a {
     margin-bottom: 5%;
 }
 
+.input--s {
+    font-size: 12px;
+}
+
 .forms-container__form,
-.forms-container__title,
-.theme-light .forms-container__form,
-.theme-light .forms-container__title {
+.forms-container__title {
     color: #2a2e35;
     margin-left: 0;
 }
@@ -83,8 +82,7 @@ a {
     flex-shrink: 0;
     gap: 32px;
     grid-gap: 32px;
-    margin-bottom: 16px;
-    overflow-x: auto;
+    overflow-x: hidden;
     padding-right: 100px;
     position: relative;
 }
@@ -150,11 +148,13 @@ a {
     border: none;
     color: inherit;
     cursor: pointer;
-    font-family: "Roboto-Medium", Arial, sans-serif;
-    font-weight: 600;
     position: relative;
     transition: all .2s;
     white-space: nowrap;
+}
+
+.form--content {
+    margin-top: 15px;
 }
 
 .button--filled {
@@ -176,9 +176,14 @@ button, input, textarea {
     font-size: 120%;
     outline: 1px solid #d5d5d6;
     overflow: visible;
-    padding: 3% 2% 2%;
+    padding: 10px;
     transition: outline-color .2s;
     width: 100%;
+    margin-bottom: 15px;
+}
+
+#send-msg-btn {
+    margin-bottom: 0;
 }
 
 textarea {
@@ -193,6 +198,11 @@ textarea {
     color: #aaabad;
     cursor: not-allowed;
     outline: none;
+}
+
+.button-title {
+    font-family: "Roboto-Medium", Arial, sans-serif;
+    font-weight: 600;
 }
 
 .footer {
@@ -213,13 +223,26 @@ textarea {
     outline: 2px solid #f73;
 }
 
-.input-wrapper .google {
-    font-size: 80%;
-}
-
 .log {
     overflow-x: hidden;
     overflow-y: scroll;
+    min-height: 150px;
     max-width: 500px;
     max-height: 300px;
+    margin-bottom: 15px;
+    background-color: #fbfbfb;
+    border: solid 1px rgb(213, 213, 214);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.hidden--error {
+    display: none;
+}
+
+.filled--button--link {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }

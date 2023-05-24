@@ -1,6 +1,6 @@
 window.addEventListener('load', (_) => {
     const tabs = document.querySelectorAll('.tabs__tab');
-    const menu = document.querySelectorAll('.menu')
+    const formContent = document.querySelectorAll('.form--content')
     
     tabs.forEach((tab, index) => {
         tab.addEventListener('click', (_) => {
@@ -9,11 +9,11 @@ window.addEventListener('load', (_) => {
             })
 
             tab.classList.add('tabs__tab--active')
-            menu.forEach(menu => {
+            formContent.forEach(menu => {
                 menu.style.display = 'none'
             })
 
-            menu[index].style.display = ''
+            formContent[index].style.display = ''
         })
     });    
 })
@@ -39,5 +39,15 @@ window.addEventListener('load', (_) => {
                 submitButton.classList.add('button--disabled')
             }
         })
+    })
+})
+
+
+window.addEventListener('load', (_) => {
+    const modalCloseBtn = document.querySelector('.modal__close a')
+    
+    modalCloseBtn.addEventListener('click', () => {
+        const modal = document.querySelector('.modal')
+        modal.remove()
     })
 })
