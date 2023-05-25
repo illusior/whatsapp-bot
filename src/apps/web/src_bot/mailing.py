@@ -25,17 +25,19 @@ K_ID_GOOGLE_SHEET = BotSettingsForm.Meta.K_ID_GOOGLE_SHEET
 K_TO_SEND_MESSAGE = BotSettingsForm.Meta.K_TO_SEND_MESSAGE
 
 
-def generalMailing(post_data) -> None:
+def generalMailing(bot_settings_form_post_data) -> None:
     wa = GreenApi(
         idInstance=os.environ.get("GREEN_API_ID_INSTANCE"),
         apiTokenInstance=os.environ.get("GREEN_API_TOKEN"),
     )
 
-    to_send_message = post_data[K_TO_SEND_MESSAGE]
-    id_data_column_google_sheet = post_data[K_ID_DATA_COLUMN_GOOGLE_SHEET]
-    id_google_sheet = post_data[K_ID_GOOGLE_SHEET]
+    to_send_message: str = bot_settings_form_post_data[K_TO_SEND_MESSAGE]
+    id_data_column_google_sheet: str = bot_settings_form_post_data[
+        K_ID_DATA_COLUMN_GOOGLE_SHEET
+    ]
+    id_google_sheet: str = bot_settings_form_post_data[K_ID_GOOGLE_SHEET]
 
-    google = UniqueSourceDecorator(
+    google_spreadsheets = UniqueSourceDecorator(
         NotEmptySourceDecorator(
             GoogleSheetSource(
                 id_google_sheet,
@@ -45,16 +47,16 @@ def generalMailing(post_data) -> None:
         )
     )
 
-    for phone_number in google:
+    for phone_number in google_spreadsheets:
         was_error = False
         err = None
+
         try:
             phone_number = validate_phone(phone_number)
             chatId = f"{phone_number}{CHAT_ID_MOBILE_DOMAIN}"
             wa.sending.sendMessage(chatId=chatId, message=to_send_message)
         except Exception as err_excpt:
             was_error = True
-            SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err_excpt)
             err = err_excpt
 
         log_number = f"{phone_number[:3]}{''.join(['x' for i in range(len(phone_number) - 5)])}{phone_number[-2:]}"
@@ -67,7 +69,13 @@ def generalMailing(post_data) -> None:
             },
         )
 
-        if not was_error:
+        if was_error:
             SERVER_LOGGER.log(
-                SERVER_LOGGER.INFO, f"Send message to {log_number}"
+                SERVER_LOGGER.ERROR,
+                f"'Failed to send message to {log_number}. 'Reason: {err}",
+            )
+        else:
+            SERVER_LOGGER.log(
+                SERVER_LOGGER.INFO,
+                f"Send message to {log_number}",
             )

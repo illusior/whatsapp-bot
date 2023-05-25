@@ -1,7 +1,7 @@
 import logging
 import datetime
 
-from config.settings import DEBUG
+from config.settings import BASE_DIR, DEBUG
 
 
 class BaseLogger(logging.Logger):
@@ -22,9 +22,10 @@ ROOT_LOGGER_NAME = __name__
 SERVER_LOGGER = BaseLogger(ROOT_LOGGER_NAME)
 
 FILE_HANDLER_NAME = (
-    f"logs/server_{datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S')}.log"
+    BASE_DIR
+    / f"logs/server_{datetime.datetime.now().strftime('%Y.%m.%d_%H.%M.%S')}.log"
     if not DEBUG
-    else "logs/server_log_debug.log"
+    else BASE_DIR / "logs/server_log_debug.log"
 )
 ROOT_LOGGER_HANDLER = logging.FileHandler(FILE_HANDLER_NAME)
 ROOT_LOGGER_FORMATTER = logging.Formatter(

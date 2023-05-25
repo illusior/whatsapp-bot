@@ -19,6 +19,6 @@
     </button>
     <button class="button button--stretch button--primary button--xl {% if no_settings %}button--disabled{% else %}button--filled{% endif %}" type="submit" id="send-msg-btn" name="action" value="send">
         {% comment %} <a href="/" class="filled--button--link"></a> {% endcomment %}
-        <div class="button-title" style="opacity: 1;">Отправить сообщение</div>
+        <div class="button-title" style="opacity: 1;">{% if has_google_token %}Отправить сообщение{% else %}Дать доступ к Google-таблице{% endif %}</div>
     </button>
 </form>

@@ -25,9 +25,13 @@ SECRET_KEY = (
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "illusior.pythonanywhere.com"]
+PRODUCTION_HOST = "illusior.pythonanywhere.com"
+ALLOWED_HOSTS = [
+    "localhost" if DEBUG else PRODUCTION_HOST
+]
+PORT = "8080"
 
 
 # Application definition
@@ -52,7 +56,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -86,23 +89,6 @@ DATABASES = {
     }
 }
 
-# LOGGING = {
-#    'version': 1,
-#    'disable_existing_loggers': False,
-#    'handlers': {
-#        'db_logger': {
-#            'level': 'INFO',
-#            'class': 'apps.web.src_bot.common.logging.logger.BotLogger',
-#        },
-#    },
-#    'loggers': {
-#        'apps.web': {
-#            'handlers': ['db_logger'],
-#            'level': 'INFO',
-#            'propagate': True,
-#        },
-#    },
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

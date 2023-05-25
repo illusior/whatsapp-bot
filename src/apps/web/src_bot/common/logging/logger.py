@@ -3,6 +3,7 @@ from logger.server_logger import BaseLogger
 
 import datetime
 import logging
+from django.utils.timezone import now
 
 
 class DatabaseHandler(logging.Handler):
@@ -12,7 +13,7 @@ class DatabaseHandler(logging.Handler):
     def emit(self, record):
         # super().emit(record)
         log = BotLogModel.objects.create(
-            datetime_record=datetime.datetime.now(),
+            datetime_record=now(),
             initiator=record.initiator,
             action_type=record.action_type,
             message=record.msg,
