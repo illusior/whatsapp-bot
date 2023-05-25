@@ -8,7 +8,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 
-from config.settings import BASE_DIR, PORT, ALLOWED_HOSTS, DEBUG
+from config.settings import BASE_DIR, PORT, ALLOWED_HOSTS, LOCAL_, PROD_
 
 # GOOGLE SHEETS #
 
@@ -27,7 +27,7 @@ class GoogleSheetsAuthData:
 
     REDIRECT_PAGE_URL = "oauth2/google/return/"  # append to REDIRECT_URI
     REDIRECT_URI = (
-        f"http{'s' if not DEBUG else ''}://{ALLOWED_HOSTS[0]}:{PORT}/"
+        f"http{'s' if PROD_ else ''}://{ALLOWED_HOSTS[0]}{f':{PORT}' if LOCAL_ else ''}/"
     )
 
     API_KEY = os.environ.get("GOOGLE_SPREADSHEET_API_KEY")

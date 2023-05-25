@@ -26,10 +26,12 @@ SECRET_KEY = (
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+PROD_ = True
+LOCAL_ = False
 
 PRODUCTION_HOST = "illusior.pythonanywhere.com"
 ALLOWED_HOSTS = [
-    "localhost" if DEBUG else PRODUCTION_HOST
+    "localhost" if LOCAL_ else PRODUCTION_HOST
 ]
 PORT = "8080"
 
