@@ -47,6 +47,22 @@ def generalMailing(bot_settings_form_post_data) -> None:
         )
     )
 
+    if not google_spreadsheets:
+        err_msg = f"Unable to access spreadsheet with `{id_google_sheet}` id. Make sure you have access to it"
+        BOT_LOGGER.log(
+            level=BOT_LOGGER.INFO,
+            msg=err_msg,
+            extra={
+                BotLogModel.K_INITIATOR: "Bot",
+                BotLogModel.K_ACTION_TYPE: "Access Google's Spreadsheets",
+            },
+        )
+        SERVER_LOGGER.log(
+            level=SERVER_LOGGER.ERROR,
+            msg=err_msg
+        )
+        raise RuntimeError(err_msg)
+
     for phone_number in google_spreadsheets:
         was_error = False
         err = None

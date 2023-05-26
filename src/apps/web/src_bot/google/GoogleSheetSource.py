@@ -7,9 +7,7 @@ from logger.server_logger import SERVER_LOGGER
 class GoogleSheetSource(AbstractSource[str]):
     __slots__ = ["__ss_service", "__spreadsheet_id", "__values", "__iter"]
 
-    def __init__(
-        self, spreadsheet_id: str, range: str, api_version
-    ) -> None:
+    def __init__(self, spreadsheet_id: str, range: str, api_version) -> None:
         super(GoogleSheetSource, self).__init__()
         try:
             service = GoogleApiServiceBuilder.from_oauth_2(
@@ -23,10 +21,13 @@ class GoogleSheetSource(AbstractSource[str]):
         except Exception as err:
             BOT_LOGGER.log(
                 BOT_LOGGER.ERROR,
-                "Failed to retrieve data from Google's Spreadsheets",
+                mgs=f"""Невозможно получить данные из Google's Spreadsheets.
+                Нет доступа к таблице с '{self.__spreadsheet_id}'.
+                Попробуйте снова или свяжитесь с администратором
+                """,
                 extra={
                     BotLogModel.K_INITIATOR: "Bot",
-                    BotLogModel.K_ACTION_TYPE: "Send message",
+                    BotLogModel.K_ACTION_TYPE: "Build service",
                 },
             )
             SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err)
@@ -39,6 +40,9 @@ class GoogleSheetSource(AbstractSource[str]):
         )
         self.__values = result.get("values", [])
         self.__iter = iter(self.__values)
+
+    def __bool__(self):
+        return self.__iter != None
 
     def __iter__(self):
         return self

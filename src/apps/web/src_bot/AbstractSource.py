@@ -20,6 +20,9 @@ class UniqueSourceDecorator(AbstractSource[ReturnT]):
         self._wrappe = wrapee
         self._cache: set[ReturnT] = set[ReturnT]()
 
+    def __bool__(self):
+        return bool(self._wrappe)
+
     def __next__(self) -> ReturnT:
         result = next(self._wrappe)
         while result in self._cache:
@@ -37,6 +40,9 @@ class NotEmptySourceDecorator(AbstractSource[ReturnT]):
         super().__init__()
 
         self._wrappe = wrapee
+
+    def __bool__(self):
+        return bool(self._wrappe)
 
     def __next__(self) -> ReturnT:
         result = next(self._wrappe)

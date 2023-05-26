@@ -23,6 +23,21 @@ a {
     margin: auto 0;
 }
 
+li {
+    list-style-type: none;
+}
+
+.text-button {
+    display: flex;
+    justify-content: flex-end;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: gray;
+    font-size: 90%;
+}
+
 .body-content {
     display: flex;
     flex-direction: column;
@@ -47,11 +62,16 @@ a {
     box-shadow: 0 8px 32px rgb(0 0 0 / 10%);
     display: flex;
     flex-flow: column;
-    margin: 0 auto;
     margin-bottom: 40px;
     min-width: 500px;
     max-width: 550px;
     padding: 32px;
+}
+
+.forms-container__top {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
 }
 
 .forms-container__title {
