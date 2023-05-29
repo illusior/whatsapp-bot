@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.web.views import WebMainView
+from apps.web.views import WebMainView, reset_settings
 from apps.web.oauth_view import GoogleApiOAuthReturnView
 from .src_bot.common.google.api import GoogleSheetsAuthData
 
@@ -14,5 +14,10 @@ URLS_NAMES = {
 
 urlpatterns = [
     path("", WebMainView.as_view(), name=URLS_NAMES[WEB_MAIN]),
-    path(f"{GoogleSheetsAuthData.REDIRECT_PAGE_URL}", GoogleApiOAuthReturnView.as_view(), name=URLS_NAMES[GOOGLE_OAUTH_RETURN])
+    path(
+        f"{GoogleSheetsAuthData.REDIRECT_PAGE_URL}",
+        GoogleApiOAuthReturnView.as_view(),
+        name=URLS_NAMES[GOOGLE_OAUTH_RETURN],
+    ),
+    path("reset-settings/", reset_settings, name="reset-settings"),
 ]

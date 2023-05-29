@@ -4,11 +4,10 @@ from ..forms import BotSettingsForm
 from .common.green_api import *
 from .common.logging.logger import *
 from .common.messages import *
-from .common.validators.PhoneValidator import *
 from .google.GoogleSheetSource import GoogleSheetSource
-from logger.server_logger import SERVER_LOGGER
 
 from .AbstractSource import (
+    OnlyDigitsSourceDecorator,
     UniqueSourceDecorator,
     NotEmptySourceDecorator,
 )
@@ -36,19 +35,20 @@ def generalMailing(bot_settings_form_post_data) -> None:
         K_ID_DATA_COLUMN_GOOGLE_SHEET
     ]
     id_google_sheet: str = bot_settings_form_post_data[K_ID_GOOGLE_SHEET]
-
     google_spreadsheets = UniqueSourceDecorator(
-        NotEmptySourceDecorator(
-            GoogleSheetSource(
-                id_google_sheet,
-                range=f"{id_data_column_google_sheet}:{id_data_column_google_sheet}",
-                api_version="v4",
+        OnlyDigitsSourceDecorator(
+            NotEmptySourceDecorator(
+                GoogleSheetSource(
+                    id_google_sheet,
+                    range=f"{id_data_column_google_sheet}:{id_data_column_google_sheet}",
+                    api_version="v4",
+                )
             )
         )
     )
 
     if not google_spreadsheets:
-        err_msg = f"Unable to access spreadsheet with `{id_google_sheet}` id. Make sure you have access to it"
+        err_msg = f"Unable to access Google-spreadsheet with `{id_google_sheet}` id. Check if you have access to it from your Google account."
         BOT_LOGGER.log(
             level=BOT_LOGGER.INFO,
             msg=err_msg,
@@ -57,10 +57,6 @@ def generalMailing(bot_settings_form_post_data) -> None:
                 BotLogModel.K_ACTION_TYPE: "Access Google's Spreadsheets",
             },
         )
-        SERVER_LOGGER.log(
-            level=SERVER_LOGGER.ERROR,
-            msg=err_msg
-        )
         raise RuntimeError(err_msg)
 
     for phone_number in google_spreadsheets:
@@ -68,7 +64,6 @@ def generalMailing(bot_settings_form_post_data) -> None:
         err = None
 
         try:
-            phone_number = validate_phone(phone_number)
             chatId = f"{phone_number}{CHAT_ID_MOBILE_DOMAIN}"
             wa.sending.sendMessage(chatId=chatId, message=to_send_message)
         except Exception as err_excpt:
@@ -84,14 +79,3 @@ def generalMailing(bot_settings_form_post_data) -> None:
                 BotLogModel.K_ACTION_TYPE: "Send message",
             },
         )
-
-        if was_error:
-            SERVER_LOGGER.log(
-                SERVER_LOGGER.ERROR,
-                f"'Failed to send message to {log_number}. 'Reason: {err}",
-            )
-        else:
-            SERVER_LOGGER.log(
-                SERVER_LOGGER.INFO,
-                f"Send message to {log_number}",
-            )

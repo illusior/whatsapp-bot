@@ -21,9 +21,9 @@ class GoogleSheetSource(AbstractSource[str]):
         except Exception as err:
             BOT_LOGGER.log(
                 BOT_LOGGER.ERROR,
-                mgs=f"""Невозможно получить данные из Google's Spreadsheets.
-                Нет доступа к таблице с '{self.__spreadsheet_id}'.
-                Попробуйте снова или свяжитесь с администратором
+                f"""Unable to get data from Google's Spreadsheets.
+                Unable to access table with'{self.__spreadsheet_id}' id.
+                Possible solutions: change the Google account, choose another table, change the reading range.
                 """,
                 extra={
                     BotLogModel.K_INITIATOR: "Bot",

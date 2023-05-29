@@ -1,8 +1,12 @@
 from django.forms import Textarea, TextInput
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.views import generic
 
+import os
+
 # from django.contrib.messages.views import SuccessMessageMixin TODO: use mixin?
+
+from .oauth_view import GET_GOOGLE_OAUTH2_MSG, GET_GOOGLE_OAUTH2_INSECURE_VALUE
 
 from .models import BotSettings, BotLogModel
 from .forms import (
@@ -25,6 +29,7 @@ from .validators.bot_settings import (
 )
 
 from .src_bot.mailing import *
+from .src_bot.common.google.api import *
 
 
 BOT_SETTINGS_FORM_CLASS = BotSettingsForm
@@ -58,9 +63,7 @@ def _make_bot_settings_widgets(values_in_placeholders_map=None):
     widgets = {
         K_TO_SEND_MESSAGE: Textarea(
             attrs={
-                "class": "input input--stretch input--xl",
-                "cols": 45,
-                "rows": 5,
+                "class": "input input--stretch input--xl send--message--input",
                 "placeholder": f"Введите сообщение для отправки. Текущее сообщение: {values_map[K_TO_SEND_MESSAGE]}",
             },
         ),
@@ -73,7 +76,7 @@ def _make_bot_settings_widgets(values_in_placeholders_map=None):
         K_ID_DATA_COLUMN_GOOGLE_SHEET: TextInput(
             attrs={
                 "class": "input input--stretch input--s",
-                "placeholder": f"Введите букву столбика, где лежат номера (A-Z), текущий столбик: {values_map[K_ID_DATA_COLUMN_GOOGLE_SHEET]}",
+                "placeholder": f"Столбик с номерами (A-Z), текущий столбик: {values_map[K_ID_DATA_COLUMN_GOOGLE_SHEET]}",
             },
         ),
     }
@@ -87,6 +90,7 @@ CK_BOT_SETTINGS_FORM = "settings_form"
 CK_LOG_BOT_LIST = "log_list"
 CK_WAS_ERROR = "was_error"
 CK_ON_FORM_POST_POPUP_TYPE = "popup_type"  # FormStatus as str
+CK_ON_SEND_MESSAGES_POPUP = "messages_are_sending_popup"
 CK_ERRORS = "errors"
 CK_HAS_GOOGLE_TOKEN = "has_google_token"
 
@@ -116,19 +120,37 @@ class WebMainView(generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context[CK_LOG_BOT_LIST] = BOT_LOG_MODEL_CLASS.objects.all()
         context[CK_BOT_SETTINGS_FORM] = self._create_bot_settings_form_factory(
             self._get_completed_bot_settings()
         )()
         context[CK_WAS_ERROR] = False
-        context[CK_HAS_GOOGLE_TOKEN] = is_google_token_valid() and is_token_exists()
+        context[CK_HAS_GOOGLE_TOKEN] = is_google_token_valid()
+
+        if BOT_LOG_MODEL_CLASS.objects.all().count() > 5000:
+            BOT_LOG_MODEL_CLASS.objects.all().delete()
 
         return context
 
     def get(self, request, *_, **kwargs):
         context = self.get_context_data(**kwargs)
         # BOT_SETTINGS_FORM_CLASS.Meta.model.objects.all().delete()
-        # BOT_LOG_MODEL_CLASS.objects.all().delete()
+
+        if GET_GOOGLE_OAUTH2_MSG in request.GET:
+            if (
+                request.GET[GET_GOOGLE_OAUTH2_MSG]
+                == GET_GOOGLE_OAUTH2_INSECURE_VALUE
+            ):
+                context[CK_WAS_ERROR] = True
+                context[CK_ON_FORM_POST_POPUP_TYPE] = get_form_status_str(
+                    FormStatus.ERR
+                )
+                _update_context_err(
+                    context,
+                    "Не удалось дать доступ к Гугл-сервису. Ваше соединение небезопасно.",
+                    code="err_insecure_google_ouath2",
+                )
 
         return render(
             request,
@@ -146,7 +168,8 @@ class WebMainView(generic.CreateView):
 
         if request.POST.get("action") == "send":
             if not is_google_token_valid():
-                return redirect(get_google_auth_url())
+                auth_url, _ = get_google_auth_url()
+                return redirect(auth_url)
 
             updated_context = self._handle_on_send_messages_btn_press(
                 request, context
@@ -181,13 +204,20 @@ class WebMainView(generic.CreateView):
                 )
                 else get_form_status_str(FormStatus.WARN)
             )
+            if context[CK_ON_FORM_POST_POPUP_TYPE] == get_form_status_str(
+                FormStatus.ERR
+            ):
+                for k, err in list(context[CK_ERRORS].items()):
+                    if isinstance(err[0], ValidationWarn):
+                        del context[CK_ERRORS][k]
 
             context[CK_WAS_ERROR] = True
 
         bot_settings_form_factory = (
-            self._create_bot_settings_form_factory()
-            if context[CK_ON_FORM_POST_POPUP_TYPE]
-            == get_form_status_str(FormStatus.ERR)
+            self._create_bot_settings_form_factory(
+                self._get_completed_bot_settings()
+            )
+            if CK_ERRORS in context
             else self._create_bot_settings_form_factory(
                 self._get_completed_bot_settings(request)
             )
@@ -198,6 +228,7 @@ class WebMainView(generic.CreateView):
         return render(request, self.template_name, context)
 
     def _get_completed_bot_settings(self, request=None):
+        # TODO: remove all non-relative for this view instances methods, that are not using `self`
         bot_settings = {
             K_ID_DATA_COLUMN_GOOGLE_SHEET: "",
             K_ID_GOOGLE_SHEET: "",
@@ -248,11 +279,13 @@ class WebMainView(generic.CreateView):
         try:
             bot_complete_settings = self._get_completed_bot_settings(request)
             generalMailing(bot_complete_settings)
-            _update_context_err(context, "Сообщения отправляются", code="OK")
-        except Exception as err:
+            context[CK_ON_SEND_MESSAGES_POPUP] = get_form_status_str(
+                FormStatus.OK
+            )
+        except Exception:
             _update_context_err(
                 context,
-                f"Не удалось отправить сообщения. Причина: {err}",
+                f"Не удалось отправить сообщения. Подробнее в логе бота",
                 code="err_empty_settings_on_first_set",
             )
             context[CK_ON_FORM_POST_POPUP_TYPE] = get_form_status_str(
@@ -263,4 +296,12 @@ class WebMainView(generic.CreateView):
         return context
 
 
-__all__ = ["WebMainView"]
+def reset_settings(request):
+    BOT_SETTINGS_FORM_CLASS.Meta.model.objects.all().delete()
+    if os.path.exists(GoogleSheetsAuthData.TOKEN_PATH):
+        os.remove(GoogleSheetsAuthData.TOKEN_PATH)
+
+    return HttpResponse()
+
+
+__all__ = ["WebMainView", "reset_settings"]

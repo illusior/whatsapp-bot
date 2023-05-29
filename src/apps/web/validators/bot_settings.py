@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.utils.translation import gettext_lazy as _
 
+
 class ValidationWarn(ValidationError):
     pass
 
@@ -53,10 +54,10 @@ def validate_google_spreadsheet_column_index(index: str) -> None:
             _("Имя колонки с номерами в Google-таблице останется прежним"),
             code="err_empty_google_ss_column_index",
         )
-    if not index.isalpha():
+    if not (index.isalpha() and index.isascii()):
         raise ValidationError(
             _(
-                "Имя колонки с номерами в Google-таблице не является набором букв"
+                "Имя колонки с номерами в Google-таблице не является набором английских букв"
             ),
             code="err_google_ss_column_index_not_alpha",
         )

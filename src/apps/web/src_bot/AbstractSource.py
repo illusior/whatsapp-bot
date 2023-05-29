@@ -52,6 +52,27 @@ class NotEmptySourceDecorator(AbstractSource[ReturnT]):
         return result
 
 
+class OnlyDigitsSourceDecorator(AbstractSource[ReturnT]):
+    __slots__ = ["_wrappe"]
+
+    def __init__(self, wrapee: AbstractSource[ReturnT]) -> None:
+        super().__init__()
+
+        self._wrappe = wrapee
+
+    def __bool__(self):
+        return bool(self._wrappe)
+
+    def __next__(self) -> ReturnT:
+        result = next(self._wrappe)
+        result = "".join(i for i in result if i.isdigit())
+        while len(result) == 0:
+            result = next(self._wrappe)
+            result = "".join(i for i in result if i.isdigit())
+
+        return result
+
+
 __all__ = [
     "AbstractSource",
     "NotEmptySourceDecorator",

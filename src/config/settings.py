@@ -25,16 +25,14 @@ SECRET_KEY = (
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-PROD_ = False
-LOCAL_ = True
+DEBUG = False
+PROD_ = True
+LOCAL_ = False
 
 PRODUCTION_HOST = "illusior.pythonanywhere.com"
-ALLOWED_HOSTS = [
-    "localhost" if LOCAL_ else PRODUCTION_HOST
-]
-PORT = "8080"
+ALLOWED_HOSTS = ["localhost" if LOCAL_ else PRODUCTION_HOST]
 
+PORT = "8080"
 
 # Application definition
 
@@ -77,6 +75,27 @@ TEMPLATES = [
         },
     },
 ]
+
+TEMPLATE_LOADERS = (
+    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.app_directories.Loader",
+    "django.template.loaders.eggs.Loader",
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.request",
+    "django.contrib.messages.context_processors.messages",
+)
+
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+)
 
 WSGI_APPLICATION = "config.wsgi.application"
 

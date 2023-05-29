@@ -11,7 +11,6 @@ class DatabaseHandler(logging.Handler):
         super().__init__()
 
     def emit(self, record):
-        # super().emit(record)
         log = BotLogModel.objects.create(
             datetime_record=now(),
             initiator=record.initiator,

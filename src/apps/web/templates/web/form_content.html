@@ -1,4 +1,4 @@
-<form action="{% url "home" %}" class="forms-container__wrapper-content" method="post">
+<form action="{% url "home" %}" id="form-containter" class="forms-container__wrapper-content" method="post">
     {% csrf_token %}
     
     <div class="form--content">
@@ -10,15 +10,20 @@
         {{ settings_form.id_data_column_google_sheet }}
     </div>
 
-    <div class="form--content" style="display: none;">
+    <div class="form--content form--content--with--log" style="display: none;">
         {% include "web/log.html" %}
     </div>
 
-    <button class="button button--stretch button--primary button--xl button--disabled" disabled type="submit" id="submit-btn" name="action" value="save">
-        <div class="button-title" style="opacity: 1;">Сохранить настройки</div>
-    </button>
-    <button class="button button--stretch button--primary button--xl {% if no_settings %}button--disabled{% else %}button--filled{% endif %}" type="submit" id="send-msg-btn" name="action" value="send">
-        {% comment %} <a href="/" class="filled--button--link"></a> {% endcomment %}
-        <div class="button-title" style="opacity: 1;">{% if has_google_token %}Отправить сообщение{% else %}Дать доступ к Google-таблице{% endif %}</div>
-    </button>
+    <div class="button-container">
+        <button class="button button--stretch button--primary button--xl button--disabled" disabled type="submit" id="submit-btn" name="action" value="save">
+            <div class="button-title" style="opacity: 1;">Сохранить настройки</div>
+        </button>
+        <button class="button button--stretch button--primary button--xl {% if no_settings %}button--disabled{% else %}button--filled{% endif %}" type="submit" id="send-msg-btn" name="action" value="send">
+            {% comment %} <a href="/" class="filled--button--link"></a> {% endcomment %}
+            <div class="button-title" style="opacity: 1;">{% if has_google_token %}Отправить сообщение{% else %}Дать доступ к Google-таблице{% endif %}</div>
+        </button>
+        <button {% if not has_google_token %}  style="display: none" {% else %} style="display: block" {% endif %} class="button button--stretch button--primary button--xl" id="reset-settings" type="button" name="action" value="reset-settings" >
+            <div class="button-title" style="opacity: 1; color: #f8f8f8">Сбросить доступ к Google-таблице</div>
+        </button>
+    </div>
 </form>

@@ -31,11 +31,10 @@ li {
     display: flex;
     justify-content: flex-end;
     background: none;
-    border: none;
-    outline: none;
     cursor: pointer;
     color: gray;
     font-size: 90%;
+    margin-right: 0;
 }
 
 .body-content {
@@ -144,6 +143,10 @@ li {
     text-align: center;
 }
 
+.button-container {
+    margin-top: auto;
+}
+
 .button--disabled:not(.button--icon), .theme-light .button--disabled:not(.button--icon) {
     background-color: #f8f8f8;
 }
@@ -171,6 +174,10 @@ li {
     position: relative;
     transition: all .2s;
     white-space: nowrap;
+}
+
+#reset-settings {
+    background-color: #f73;
 }
 
 .form--content {
@@ -203,11 +210,15 @@ button, input, textarea {
 }
 
 #send-msg-btn {
-    margin-bottom: 0;
+    margin-bottom: 3%;
 }
 
 textarea {
     resize: none;
+}
+
+.send--message--input {
+    height: 200px;
 }
 
 .theme-light .footer {
@@ -244,16 +255,21 @@ textarea {
 }
 
 .log {
+    min-width: 150px;
+    max-width: 500px;
+    min-height: 340px;
+    max-height: 500px;
+
+    margin-bottom: 15px;
+
+    padding: 10px;
+
     overflow-x: hidden;
     overflow-y: scroll;
-    min-height: 150px;
-    max-width: 500px;
-    max-height: 300px;
-    margin-bottom: 15px;
+
     background-color: #fbfbfb;
     border: solid 1px rgb(213, 213, 214);
     border-radius: 8px;
-    padding: 10px;
 }
 
 .hidden--error {
@@ -265,4 +281,93 @@ textarea {
     position: absolute;
     width: 100%;
     height: 100%;
+}
+
+@media (max-width: 424px) {
+    .forms-container {
+        max-width: 95vw;
+        min-width: 85vw;
+
+        height: 652px;
+
+        margin-left: inherit;
+    }
+
+    .forms-container__top {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .form--content {
+        min-width: 75vw;
+        max-width: 75vw;
+    }
+
+    .text-button {
+        display: none;
+    }
+
+    .forms-container__form {
+        margin-left: 0;
+        margin-right: 0;
+        height: 100%;
+    }
+
+    .forms-container__wrapper-content {
+        height: 90%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .form--content--with--log {
+        margin-left: 0;
+    }
+
+    .button-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .button--xl {
+        max-width: 75vw;
+        max-height: 15px;
+
+        padding-top: 0;
+        padding-bottom: 0;
+
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    .button-title {
+        white-space: break-spaces;
+    }
+
+    .tabs {
+        overflow-x: auto;
+        padding: inherit;
+        min-width: 75vw;
+    }
+
+    .send--message--input {
+        height: 320px
+    }
+
+    .log {
+        min-height: 25vh;
+        max-height: 35vh;
+    }
+}
+
+@media (min-width: 425px) and (max-width: 799px) {
+    .forms-container {
+        max-width: 90%;
+        min-width: 400px;
+    }
+
+    .tabs {
+        overflow-x: auto;
+        padding: inherit;
+    }
 }

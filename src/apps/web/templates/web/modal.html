@@ -3,14 +3,18 @@
         <div class="modal__container">
             <div class="modal__body{% if popup_type == 'warn' %} warning{% endif %}{% if popup_type == 'err' %} danger{% endif %}">
                 <div class="modal__header" style="{% if popup_type == 'ok' %}align-self: center; padding-bottom: inherit;{% endif %}">
-                    {% if popup_type == 'ok' %}
-                        Настройки успешно сохранены
-                    {% endif %}
-                    {% if popup_type == 'warn' %}
-                        Часть настроек не была изменена
-                    {% endif %}
-                    {% if popup_type == 'err' %}
-                        Ошибка. Настройки не сохранены
+                    {% if messages_are_sending_popup %}
+                        Сообщения отправляются
+                    {% else %}
+                        {% if popup_type == 'ok' %}
+                            Настройки успешно сохранены
+                        {% endif %}
+                        {% if popup_type == 'warn' %}
+                            Часть настроек не была изменена
+                        {% endif %}
+                        {% if popup_type == 'err' %}
+                            Ошибка
+                        {% endif %}
                     {% endif %}
                 </div>
             
@@ -23,9 +27,7 @@
                         {% for err in errors.values %}
                             {% for except in err %}
                                 {% for msg in except %}
-                                    <div class="modal__item">
-                                        {{ msg }}
-                                    </div>
+                                    <div class="modal__item">{{ msg }}</div>
                                 {% endfor %}
                             {% endfor %}
                         {% endfor %}
