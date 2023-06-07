@@ -47,17 +47,36 @@ class GoogleSheetsAuthData:
 # GOOGLE SHEETS #
 
 
-def is_token_exists() -> bool:
+def is_google_token_exists() -> bool:
     return os.path.exists(GoogleSheetsAuthData.TOKEN_PATH)
+
+
+def refresh_google_token():
+    try:
+        if is_google_token_exists():
+            creds = Credentials.from_authorized_user_file(
+                GoogleSheetsAuthData.TOKEN_PATH, GoogleSheetsAuthData.SCOPES
+            )
+
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+                with open(GoogleSheetsAuthData.TOKEN_PATH, "w") as token:
+                    token.write(creds.to_json())
+    except Exception as err:
+        SERVER_LOGGER.log(
+            SERVER_LOGGER.ERROR,
+            f"Failed to refresh already obtained Google's token. Reason: {err}",
+        )
 
 
 def is_google_token_valid() -> bool:
     creds: Credentials = None
 
-    if is_token_exists():
+    if is_google_token_exists():
         creds = Credentials.from_authorized_user_file(
             GoogleSheetsAuthData.TOKEN_PATH, GoogleSheetsAuthData.SCOPES
         )
+
         return creds and creds.valid
 
     return False
@@ -93,8 +112,7 @@ def update_google_token(code) -> Credentials:
         with open(GoogleSheetsAuthData.TOKEN_PATH, "w") as token:
             token.write(creds.to_json())
     elif not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+        refresh_google_token()
 
 
 def get_google_token() -> Credentials | None:

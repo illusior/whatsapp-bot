@@ -18,8 +18,8 @@ from .forms import (
 
 from apps.web.src_bot.common.google.api import (
     get_google_auth_url,
-    is_token_exists,
     is_google_token_valid,
+    refresh_google_token,
 )
 
 from .validators.bot_settings import (
@@ -125,7 +125,10 @@ class WebMainView(generic.CreateView):
         context[CK_BOT_SETTINGS_FORM] = self._create_bot_settings_form_factory(
             self._get_completed_bot_settings()
         )()
+
         context[CK_WAS_ERROR] = False
+
+        refresh_google_token()
         context[CK_HAS_GOOGLE_TOKEN] = is_google_token_valid()
 
         if BOT_LOG_MODEL_CLASS.objects.all().count() > 5000:
@@ -167,7 +170,7 @@ class WebMainView(generic.CreateView):
         context[CK_ON_FORM_POST_POPUP_TYPE] = get_form_status_str(FormStatus.OK)
 
         if request.POST.get("action") == "send":
-            if not is_google_token_valid():
+            if not context[CK_HAS_GOOGLE_TOKEN]:
                 auth_url, _ = get_google_auth_url()
                 return redirect(auth_url)
 
@@ -296,8 +299,7 @@ class WebMainView(generic.CreateView):
         return context
 
 
-def reset_settings(request):
-    BOT_SETTINGS_FORM_CLASS.Meta.model.objects.all().delete()
+def reset_settings(_):
     if os.path.exists(GoogleSheetsAuthData.TOKEN_PATH):
         os.remove(GoogleSheetsAuthData.TOKEN_PATH)
 
