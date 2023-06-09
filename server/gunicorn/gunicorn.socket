@@ -1,0 +1,9 @@
+[Unit]
+Description=gunicorn ufanet whatsapp bot socket
+
+[Socket]
+ListenStream=/run/gunicorn.%project_name%.sock
+Service=gunicorn.%project_name%.service
+
+[Install]
+WantedBy=sockets.target

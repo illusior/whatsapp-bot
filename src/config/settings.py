@@ -30,7 +30,7 @@ PROD_ = False
 LOCAL_ = True
 
 PRODUCTION_HOST = "illusior.pythonanywhere.com"
-ALLOWED_HOSTS = ["localhost" if LOCAL_ else PRODUCTION_HOST]
+ALLOWED_HOSTS = ["localhost" if LOCAL_ else PRODUCTION_HOST, '192.168.0.89']
 
 PORT = "8080"
 
