@@ -12,7 +12,7 @@ COMMANDS = [
 
 
 def main():
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings_local")
 
     try:
         from django.core.management import ManagementUtility

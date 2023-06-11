@@ -2,6 +2,7 @@
 
 msg1="Farewell :)"
 msg2="Everything is loaded and shines, see you space cowboy..."
+
 Goodbyes() {
     echo
     echo $1
@@ -20,18 +21,21 @@ base_python_interpreter=`which python3`
 (echo "python not found. downloading" && sudo apt install python3)
 
 # common
+proxy_server=""
 project_path=`pwd`
 env_name=""
-project_name=${PWD##*/}                # to assign to a variable
-project_name=${project_name:-/}        # to correct for the case where PWD=/
+project_name=${PWD##*/}         # to assign to a variable
+project_name=${project_name:-/} # to correct for the case where PWD=/
 
 # nginx config
+
 port=""
 project_domain=""
 
 echo
 read -p "Your domain without protocol exactly like in settings.py (for example: google.com): " project_domain
 read -p "Your port (for example: 80): " port
+read -p "Your proxy (leave empty if no need): " proxy_server
 read -p "Environment name folder to create (for example: env): " env_name
 echo
 echo "We are assuming your project in $project_path/src folder"
@@ -44,8 +48,8 @@ download_packages () {
     echo
     echo "downloading project packages"
     echo
-    pip install -U pip
-    pip install -r requirements.txt
+    pip install -U --proxy "$proxy_server" pip
+    pip install -r requirements.txt --proxy "$proxy_server"
 }
 
 echo
@@ -60,14 +64,15 @@ done
 echo
 echo "Building server settings from templates in server/complete_settings folder"
 mkdir -p server/complete_settings
-# nginx
+# nginx templates
 sed    -e "s~%domain%~$project_domain~g" \
        -e "s~%port%~$port~g" \
        -e "s~%work_dir%~$project_path~g" \
        -e "s~%project_name%~$project_name~g" \
+       -e "s~%work_dir%~$project_path~g" \
        server/nginx/site.conf > tmp && mv tmp server/complete_settings/$project_name.conf
 
-# gunicorn
+# gunicorn templates
 gunicorn_service_name="gunicorn.$project_name.service"
 gunicorn_socket_name="gunicorn.$project_name.socket"
 gunicorn_service_path="$project_path/server/complete_settings/$gunicorn_service_name"
@@ -76,11 +81,15 @@ gunicorn_socket_path="$project_path/server/complete_settings/$gunicorn_socket_na
 sed    -e "s~%venv_dir%~$project_path\/$env_name~g" \
        -e "s~%work_dir%~$project_path~g" \
        -e "s~%project_name%~$project_name~g" \
-       server/gunicorn/gunicorn.service > tmp && mv tmp $gunicorn_service_path       
+       server/gunicorn/gunicorn.service > tmp && mv tmp $gunicorn_service_path
 
 sed    -e "s~%project_name%~$project_name~g" \
        server/gunicorn/gunicorn.socket > tmp && mv tmp $gunicorn_socket_path
 
+# settings.py
+sed    -e "s~%domain%~$project_domain~g" \
+       -e "s~%port%~$port~g" \
+       src/config/settings_deploy_template.py > tmp && mv tmp src/config/settings.py
 
 enable_gunicorn() {
 
@@ -94,7 +103,7 @@ sudo systemctl disable $gunicorn_socket_name 2> /dev/null
 sudo systemctl stop $gunicorn_socket_name 2> /dev/null
 sudo systemctl -q enable $gunicorn_socket_path && \
     echo "Successfully created symlinks for gunicorn socket"
-sudo systemctl start $gunicorn_socket_name 2> /dev/null #idk why error | journalctl -u $gunicorn_socket_name
+sudo systemctl start $gunicorn_socket_name 2> /dev/null        #idk why error | journalctl -u $gunicorn_socket_name
 sudo systemctl -q enable $gunicorn_service_path && \
     echo "Successfully created symlinks for gunicorn service"
 sudo systemctl start $gunicorn_service_name
@@ -103,7 +112,7 @@ sudo systemctl start $gunicorn_service_name
 
 disable_gunicorn() {
     sudo systemctl disable $gunicorn_service_name 2> /dev/null
-    sudo systemctl stop $gunicorn_service_name 2> /dev/null        # remove socket from run/
+    sudo systemctl stop $gunicorn_service_name 2> /dev/null    # remove socket from run/
     sudo systemctl disable $gunicorn_socket_name 2> /dev/null
     sudo systemctl stop $gunicorn_socket_name 2> /dev/null
     echo
@@ -139,8 +148,28 @@ if [[ $is_gunicorn_disabled == true ]]; then
     done
 fi
 
+# Generate fake ssl certs for test https
+
+echo
+echo "Generating fake ssl certificates"
+cd server/
+openssl req -x509 -out $project_domain.crt -keyout $project_domain.key \
+	-newkey rsa:2048 -nodes -sha256 \
+	-subj '/CN=$project_domain' -extensions EXT -config <( \
+		printf "[dn]\nCN=$project_domain\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:			$project_domain\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth") &> /dev/null
+	
+if [[ $? == 0 ]]; then
+	echo "Successfully generated fake ssl certs"
+else
+	echo "Failed to generate ssl certs. Exit"
+	Goodbyes "$msg1"
+	exit
+fi
+
+cd ..
 
 # nginx boot
+
 echo
 echo "Checking nginx configuration file"
 sudo nginx -t
@@ -173,14 +202,11 @@ if [[ $? == 0 ]]; then
     echo "Reallow ufw rules: $port and 'Nginx Full'"
     sudo ufw allow 'Nginx Full'
     sudo ufw allow $port
+    
     Goodbyes "$msg2"
 else
     echo
     echo "Wrong nginx configuration. Exit"
     Goodbyes $msg1
 fi
-
-
-
-
 
