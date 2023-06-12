@@ -20,6 +20,9 @@ def _random_string(length=16):
     return "".join(random.choice(letters) for _ in range(length))
 
 
+_GOOGLE_AUTH_STATE_INSTANCE = _random_string()
+
+
 # GOOGLE SHEETS #
 
 
@@ -38,7 +41,7 @@ class GoogleSheetsAuthData:
     REDIRECT_PAGE_URL = "oauth2/google/return/"  # append to REDIRECT_URI
     REDIRECT_URI = f"http{'s' if PROD_ else ''}://{ALLOWED_HOSTS[0]}{f':{PORT}' if LOCAL_ else ''}/"
 
-    STATE_APP_INSTANCE = _random_string()
+    STATE_APP_INSTANCE = _GOOGLE_AUTH_STATE_INSTANCE
 
     GET_STATE_ARG = "state"
     GET_CODE_ARG = "code"
