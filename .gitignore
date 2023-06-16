@@ -60,9 +60,8 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-src/config/settings.py
 
-# Server config
+# nginx + gunicorn completed config
 server/complete_settings/*
 
 migrations/
@@ -162,6 +161,3 @@ cython_debug/
 
 # Visual Code
 .vscode/
-
-# User data
-user_data/

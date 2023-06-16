@@ -148,26 +148,6 @@ if [[ $is_gunicorn_disabled == true ]]; then
     done
 fi
 
-# Generate fake ssl certs for test https
-
-echo
-echo "Generating fake ssl certificates"
-cd server/
-openssl req -x509 -out $project_domain.crt -keyout $project_domain.key \
-	-newkey rsa:2048 -nodes -sha256 \
-	-subj '/CN=$project_domain' -extensions EXT -config <( \
-		printf "[dn]\nCN=$project_domain\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:			$project_domain\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth") &> /dev/null
-	
-if [[ $? == 0 ]]; then
-	echo "Successfully generated fake ssl certs"
-else
-	echo "Failed to generate ssl certs. Exit"
-	Goodbyes "$msg1"
-	exit
-fi
-
-cd ..
-
 # nginx boot
 
 echo
