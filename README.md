@@ -1,3 +1,6 @@
-# Ufanet promo whatsapp's spam-bot
+# Whatsapp's spam-bot
 
-Simple bot based on whatsapp cloud api's wrapper GreenApi and Google OAuth 2.0 API
+Simple web application that uses:<br>
+  - `GreenApi` - whatsapp cloud api's wrapper
+  - `Google OAuth 2.0 API` - for obtaining phone numbers
+  - `django+ngninx+gunicorn` - server stuff
