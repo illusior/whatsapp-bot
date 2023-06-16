@@ -3,6 +3,8 @@ from django.http import (
 )
 from django.views import generic
 
+from logger.django_logger import DJANGO_LOGGER
+
 from .src_bot.common.google.api import GoogleSheetsAuthData, update_google_token
 from .src_bot.mailing import *
 from .src_bot.common.google.api import GoogleSheetsAuthData
@@ -18,13 +20,5 @@ class GoogleApiOAuthReturnView(generic.TemplateView):
     template_name = "web/google_oauth.html"
 
     def get(self, request, *_, **__):
-        if (
-            request.GET[GoogleSheetsAuthData.GET_STATE_ARG]
-            != GoogleSheetsAuthData.STATE_APP_INSTANCE
-        ):
-            return HttpResponseRedirect(
-                f"{GoogleSheetsAuthData.REDIRECT_URI}?{GET_GOOGLE_OAUTH2_MSG}={GET_GOOGLE_OAUTH2_INSECURE_VALUE}"
-            )
-
         update_google_token(request.GET[GoogleSheetsAuthData.GET_CODE_ARG])
         return HttpResponseRedirect(GoogleSheetsAuthData.REDIRECT_URI)

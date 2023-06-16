@@ -1,7 +1,7 @@
 from ..AbstractSource import AbstractSource
 from ..common.google.api import GoogleApiServiceBuilder
 from ..common.logging.logger import BOT_LOGGER, BotLogModel
-from logger.server_logger import SERVER_LOGGER
+from logger.django_logger import DJANGO_LOGGER
 
 
 class GoogleSheetSource(AbstractSource[str]):
@@ -30,7 +30,7 @@ class GoogleSheetSource(AbstractSource[str]):
                     BotLogModel.K_ACTION_TYPE: "Build service",
                 },
             )
-            SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err)
+            DJANGO_LOGGER.log(DJANGO_LOGGER.ERROR, err)
 
     def set_range(self, range: str) -> None:
         result = (

@@ -11,16 +11,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 from config.settings import BASE_DIR, PORT, ALLOWED_HOSTS, LOCAL_, PROD_
 
-from logger.server_logger import SERVER_LOGGER
+from logger.django_logger import DJANGO_LOGGER
 
 
-def _random_string(length=16):
-    letters = string.printable
-
-    return "".join(random.choice(letters) for _ in range(length))
-
-
-_GOOGLE_AUTH_STATE_INSTANCE = _random_string()
+# TODO: too messy and hardcode
 
 
 # GOOGLE SHEETS #
@@ -40,8 +34,6 @@ class GoogleSheetsAuthData:
 
     REDIRECT_PAGE_URL = "oauth2/google/return/"  # append to REDIRECT_URI
     REDIRECT_URI = f"http{'s' if PROD_ else ''}://{ALLOWED_HOSTS[0]}{f':{PORT}' if LOCAL_ else ''}/"
-
-    STATE_APP_INSTANCE = _GOOGLE_AUTH_STATE_INSTANCE
 
     GET_STATE_ARG = "state"
     GET_CODE_ARG = "code"
@@ -66,8 +58,8 @@ def refresh_google_token():
                 with open(GoogleSheetsAuthData.TOKEN_PATH, "w") as token:
                     token.write(creds.to_json())
     except Exception as err:
-        SERVER_LOGGER.log(
-            SERVER_LOGGER.ERROR,
+        DJANGO_LOGGER.log(
+            DJANGO_LOGGER.ERROR,
             f"Failed to refresh already obtained Google's token. Reason: {err}",
         )
 
@@ -90,14 +82,13 @@ def get_google_auth_url():
         GoogleSheetsAuthData.CREDENTIALS_PATH,
         GoogleSheetsAuthData.SCOPES,
         redirect_uri=f"{GoogleSheetsAuthData.REDIRECT_URI}{GoogleSheetsAuthData.REDIRECT_PAGE_URL}",
-        state=GoogleSheetsAuthData.STATE_APP_INSTANCE,
     )
 
-    auth_url, state = flow.authorization_url(
+    auth_url, _ = flow.authorization_url(
         prompt="consent", access_type="offline", include_granted_scopes="true"
     )
 
-    return auth_url, state
+    return auth_url
 
 
 def update_google_token(code) -> Credentials:
@@ -142,7 +133,7 @@ class GoogleApiServiceBuilder:
             err = RuntimeError(
                 "Failed to build Google's service from oauth2. Credentials are missing"
             )
-            SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err)
+            DJANGO_LOGGER.log(DJANGO_LOGGER.ERROR, err)
             raise err
 
         return build(

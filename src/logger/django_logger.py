@@ -19,7 +19,7 @@ class BaseLogger(logging.Logger):
 
 
 ROOT_LOGGER_NAME = __name__
-SERVER_LOGGER = BaseLogger(ROOT_LOGGER_NAME)
+DJANGO_LOGGER = BaseLogger(ROOT_LOGGER_NAME)
 
 FILE_HANDLER_NAME = (
     BASE_DIR
@@ -34,7 +34,7 @@ ROOT_LOGGER_FORMATTER = logging.Formatter(
 )
 
 ROOT_LOGGER_HANDLER.setFormatter(ROOT_LOGGER_FORMATTER)
-SERVER_LOGGER.addHandler(ROOT_LOGGER_HANDLER)
+DJANGO_LOGGER.addHandler(ROOT_LOGGER_HANDLER)
 
 
-__all__ = ["SERVER_LOGGER", "BaseLogger"]
+__all__ = ["DJANGO_LOGGER", "BaseLogger"]

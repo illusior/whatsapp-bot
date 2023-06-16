@@ -1,6 +1,6 @@
 import os
 
-from logger.server_logger import SERVER_LOGGER
+from logger.django_logger import DJANGO_LOGGER
 
 COMMANDS = [
     "manage.py collectstatic",
@@ -32,4 +32,4 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as err:
-        SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err)
+        DJANGO_LOGGER.log(DJANGO_LOGGER.ERROR, err)

@@ -3,7 +3,7 @@
 import os
 import sys
 
-from logger.server_logger import SERVER_LOGGER
+from logger.django_logger import DJANGO_LOGGER
 
 
 def main():
@@ -18,11 +18,11 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         )
-        SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err)
+        DJANGO_LOGGER.log(DJANGO_LOGGER.ERROR, err)
         raise err from exc
 
-    SERVER_LOGGER.log(
-        SERVER_LOGGER.INFO, f"Start manage.py with argv: {sys.argv}"
+    DJANGO_LOGGER.log(
+        DJANGO_LOGGER.INFO, f"Start manage.py with argv: {sys.argv}"
     )
     execute_from_command_line(sys.argv)
 
@@ -31,4 +31,4 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as err:
-        SERVER_LOGGER.log(SERVER_LOGGER.ERROR, err)
+        DJANGO_LOGGER.log(DJANGO_LOGGER.ERROR, err)

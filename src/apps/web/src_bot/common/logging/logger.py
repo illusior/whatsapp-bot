@@ -1,7 +1,6 @@
 from apps.web.models import *
-from logger.server_logger import BaseLogger
+from logger.django_logger import BaseLogger
 
-import datetime
 import logging
 from django.utils.timezone import now
 

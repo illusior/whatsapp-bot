@@ -140,21 +140,6 @@ class WebMainView(generic.CreateView):
         context = self.get_context_data(**kwargs)
         # BOT_SETTINGS_FORM_CLASS.Meta.model.objects.all().delete()
 
-        if GET_GOOGLE_OAUTH2_MSG in request.GET:
-            if (
-                request.GET[GET_GOOGLE_OAUTH2_MSG]
-                == GET_GOOGLE_OAUTH2_INSECURE_VALUE
-            ):
-                context[CK_WAS_ERROR] = True
-                context[CK_ON_FORM_POST_POPUP_TYPE] = get_form_status_str(
-                    FormStatus.ERR
-                )
-                _update_context_err(
-                    context,
-                    "Не удалось дать доступ к Гугл-сервису. Ваше соединение небезопасно.",
-                    code="err_insecure_google_ouath2",
-                )
-
         return render(
             request,
             self.template_name,
@@ -171,7 +156,7 @@ class WebMainView(generic.CreateView):
 
         if request.POST.get("action") == "send":
             if not context[CK_HAS_GOOGLE_TOKEN]:
-                auth_url, _ = get_google_auth_url()
+                auth_url = get_google_auth_url()
                 return redirect(auth_url)
 
             updated_context = self._handle_on_send_messages_btn_press(
