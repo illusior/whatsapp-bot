@@ -161,3 +161,6 @@ cython_debug/
 
 # Visual Code
 .vscode/
+
+# User data, credentials, tokens
+src/user_data/*
