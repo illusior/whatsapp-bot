@@ -3,11 +3,11 @@ import os
 from logger.django_logger import DJANGO_LOGGER
 
 COMMANDS = [
-    "manage.py collectstatic",
+    "manage.py collectstatic -c --noinput",
     "manage.py makemigrations",
     "manage.py makemigrations web",
     "manage.py migrate",
-    "manage.py runserver 8080",
+    "manage.py runserver 0.0.0.0:8080",
 ]
 
 

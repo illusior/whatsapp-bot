@@ -31,7 +31,7 @@ LOCAL_ = True
 
 ALLOWED_HOSTS = ["localhost"]
 
-PORT = "8080"
+PORT = "80"
 
 # Application definition
 

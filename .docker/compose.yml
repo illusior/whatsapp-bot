@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    tty: true
+    container_name: app
+    build:
+      dockerfile: ./.docker/Dockerfile
+      context: ./../
+      target: app
+    environment:
+      GREEN_API_ID_INSTANCE: 1101821539
+      GREEN_API_TOKEN: a67cf9fe39f44e3ea82e28547fe8a7dd093695deb7264054b1
+    ports:
+      - 80:8080
+    #volumes:
+    # - ./.docker/gunicorn.app.socket:/app/gunicorn.app.service
+    # - ./.docker/gunicorn.app.socket:/app/gunicorn.app.socket

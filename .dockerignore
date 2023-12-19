@@ -1,0 +1,4 @@
+.docker
+.venv
+/**/*.md
+/**/*.log
